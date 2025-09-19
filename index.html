@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GAObus - Smart Transit</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="app-background" style="background-image: url('bus_background.jpg');"></div>
+    <div class="main-wrapper">
+        <div class="top-taskbar">
+            <div class="logo-container">
+                <img src="logo.jpg" alt="GAObus Logo" class="app-logo">
+            </div>
+            <div class="top-right-actions">
+                <div class="notification-bell" onclick="showContent('notification-centre-section', this)">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-badge" id="notification-count">2</span>
+                </div>
+                <div class="profile-box" onclick="showSection('user-selection')">
+                    <i class="fas fa-user-circle"></i>
+                    <span id="profile-status">Register/Login</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-area">
+
+            <!-- Registration/Login Forms Section -->
+            <div id="user-selection" class="section hidden">
+                <h2>Select Your Role to Register</h2>
+                <div class="role-grid">
+                    <div class="role-card" onclick="showSection('commuter-register')">
+                        <i class="fas fa-user"></i>
+                        <h4>Commuter</h4>
+                    </div>
+                    <div class="role-card" onclick="showSection('conductor-register')">
+                        <i class="fas fa-user-tie"></i>
+                        <h4>Conductor</h4>
+                    </div>
+                    <div class="role-card" onclick="showSection('municipal-register')">
+                        <i class="fas fa-city"></i>
+                        <h4>Municipal Corporation</h4>
+                    </div>
+                </div>
+                <button class="back-btn" onclick="backToDashboard()">Back to Dashboard</button>
+            </div>
+
+            <!-- Commuter Registration Form -->
+            <div id="commuter-register" class="section hidden">
+                <h3>Commuter Registration</h3>
+                <input type="text" id="commuter-name" placeholder="Your Name" required>
+                <input type="tel" id="commuter-phone" placeholder="Phone Number" required>
+                <button onclick="registerCommuter()">Register</button>
+                <button class="back-btn" onclick="showSection('user-selection')">Back</button>
+            </div>
+
+            <!-- Conductor Registration Form -->
+            <div id="conductor-register" class="section hidden">
+                <h3>Conductor Registration</h3>
+                <input type="text" id="conductor-name" placeholder="Your Name" required>
+                <input type="text" id="conductor-bus-id" placeholder="Bus Number" required>
+                <input type="text" id="conductor-vehicle-reg" placeholder="Vehicle Registration No." required>
+                <input type="text" id="conductor-license" placeholder="Driver's License No." required>
+                <input type="tel" id="conductor-phone" placeholder="Phone Number" required>
+                <button onclick="registerConductor()">Next</button>
+                <button class="back-btn" onclick="showSection('user-selection')">Back</button>
+            </div>
+
+            <div id="conductor-route-form" class="section hidden">
+                <h3>Conductor Route Details</h3>
+                <label for="conductor-start-point">Starting Point:</label>
+                <select id="conductor-start-point" required>
+                    <option value="">Select Starting Point</option>
+                    <option value="Apaji">Apaji</option>
+                    <option value="AI Centre">AI Centre</option>
+                    <option value="Ratan Mandir">Ratan Mandir</option>
+                    <option value="Vigyan Mandir">Vigyan Mandir</option>
+                    <option value="Jeev Mandir">Jeev Mandir</option>
+                    <option value="Surya Mandir">Surya Mandir</option>
+                </select>
+                <label for="conductor-end-point">Final Destination:</label>
+                <select id="conductor-end-point" required>
+                    <option value="">Select Final Destination</option>
+                    <option value="Apaji">Apaji</option>
+                    <option value="AI Centre">AI Centre</option>
+                    <option value="Ratan Mandir">Ratan Mandir</option>
+                    <option value="Vigyan Mandir">Vigyan Mandir</option>
+                    <option value="Jeev Mandir">Jeev Mandir</option>
+                    <option value="Surya Mandir">Surya Mandir</option>
+                </select>
+                <h4>Add Stop Points (up to 5)</h4>
+                <div id="stop-points-container">
+                    <div class="stop-point-input">
+                        <input type="text" placeholder="Stop Point Name" class="stop-name" required>
+                        <input type="number" placeholder="Fare" class="stop-fare" required>
+                    </div>
+                </div>
+                <button onclick="addStopPoint()">Add another stop</button>
+                <button onclick="submitConductorRoute()">Next</button>
+            </div>
+
+            <div id="conductor-occupancy-form" class="section hidden">
+                <h3>Update Occupancy at Stop</h3>
+                <label for="occupancy-stop-select">Select Your Current Stop:</label>
+                <select id="occupancy-stop-select" required></select>
+                <p>Select occupancy level:</p>
+                <div class="occupancy-buttons">
+                    <button class="occupancy-btn empty" onclick="updateOccupancy('empty')">Empty</button>
+                    <button class="occupancy-btn moderate" onclick="updateOccupancy('moderate')">Moderate</button>
+                    <button class="occupancy-btn full" onclick="updateOccupancy('full')">Full</button>
+                </div>
+                <button onclick="alert('Occupancy updated!')">Submit Update</button>
+            </div>
+
+
+            <!-- Municipal Corporation Registration Form -->
+            <div id="municipal-register" class="section hidden">
+                <h3>Municipal Corporation Registration</h3>
+                <input type="text" id="municipal-name" placeholder="Your Name" required>
+                <input type="text" id="municipal-id" placeholder="Employee ID" required>
+                <input type="text" id="municipal-designation" placeholder="Designation" required>
+                <button onclick="registerMunicipal()">Register</button>
+                <button class="back-btn" onclick="showSection('user-selection')">Back</button>
+            </div>
+
+
+            <!-- Main Content Sections -->
+            <div id="dashboard-section" class="section active-content">
+                <h2>Dashboard</h2>
+                <div class="dashboard-grid-new">
+                    <div class="dashboard-card map-card">
+                        <h4>Map Overview</h4>
+                        <img src="banasthali_map.jpg" alt="Banasthali Map" class="dashboard-map">
+                    </div>
+                    <div class="dashboard-card live-buses-card">
+                        <h4>Live Buses</h4>
+                        <div id="live-buses-list"></div>
+                    </div>
+                    <div class="dashboard-card delayed-buses-card">
+                        <h4>Delayed Buses</h4>
+                        <p>Currently: <span class="text-red">5</span> <i class="fas fa-exclamation-triangle"></i></p>
+                    </div>
+                    <div class="dashboard-card avg-wait-time-card">
+                        <h4>Avg. Wait Time</h4>
+                        <p><span>7</span> mins <i class="fas fa-clock"></i></p>
+                    </div>
+                    <div class="dashboard-card full-width">
+                        <h4>Nearby Bus Stops</h4>
+                        <ul>
+                            <li>Apaji (50m) <i class="fas fa-map-marker-alt"></i></li>
+                            <li>AI Centre (200m) <i class="fas fa-map-marker-alt"></i></li>
+                            <li>Ratan Mandir (500m) <i class="fas fa-map-marker-alt"></i></li>
+                            <li>Vigyan Mandir (750m) <i class="fas fa-map-marker-alt"></i></li>
+                            <li>Jeev Mandir (1km) <i class="fas fa-map-marker-alt"></i></li>
+                            <li>Surya Mandir (1.2km) <i class="fas fa-map-marker-alt"></i></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div id="live-tracker-section" class="section hidden-content">
+                <h2 class="section-title">Live Tracker</h2>
+                <div class="tracker-header">
+                    <div class="live-status-box">
+                        <i class="fas fa-wifi"></i> Online
+                    </div>
+                    <div class="last-updated-box">
+                        Last Updated: <span id="last-updated-time"></span>
+                        <i class="fas fa-sync-alt" onclick="updateLastUpdatedTime()"></i>
+                    </div>
+                </div>
+                <div class="route-selection-form">
+                    <label for="live-from-location">From:</label>
+                    <select id="live-from-location"></select>
+                    <label for="live-to-location">To:</label>
+                    <select id="live-to-location"></select>
+                    <button onclick="findLiveBuses()">Find Buses</button>
+                </div>
+                <div id="live-bus-results" class="bus-results hidden-content"></div>
+                <div id="live-bus-details" class="bus-details-view hidden-content">
+                    <h3 id="live-bus-title"></h3>
+                    <p><span id="live-bus-path"></span></p>
+                    <p><span id="live-arrival-time"></span></p>
+                    <p id="live-bus-status-text"></p>
+                    <button onclick="backToLiveTrackerResults()">Back to Results</button>
+                </div>
+            </div>
+
+            <div id="route-tracker-section" class="section hidden-content">
+                <h2>Route Tracker</h2>
+                <div class="filter-bar">
+                    <div class="search-box">
+                        <input type="text" placeholder="Search routes..." class="search-input">
+                    </div>
+                    <select id="route-filter" class="filter-dropdown">
+                        <option value="all">All Routes</option>
+                        <option value="empty">Empty Buses</option>
+                        <option value="arriving">Arriving Soon</option>
+                    </select>
+                    <div class="filter-icon" onclick="toggleFilterBox()">
+                        <i class="fas fa-filter"></i>
+                    </div>
+                    <div id="filter-box" class="filter-box-dropdown hidden">
+                        <h4>Filter Options</h4>
+                        <label for="bus-status-filter">Bus Status:</label>
+                        <select id="bus-status-filter">
+                            <option value="all">All Status</option>
+                            <option value="running">Running</option>
+                            <option value="delayed">Delayed</option>
+                            <option value="stopped">Stopped</option>
+                        </select>
+                        <label for="occupancy-filter">Occupancy Level:</label>
+                        <select id="occupancy-filter">
+                            <option value="all">All Levels</option>
+                            <option value="empty">Empty</option>
+                            <option value="moderate">Moderate</option>
+                            <option value="full">Full</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="route-overview-container">
+                    <h4>Route Overview</h4>
+                    <div id="route-overview-grid"></div>
+                </div>
+                <div class="interactive-map-container">
+                    <h4>Interactive Route Map</h4>
+                    <p>Visual representation of bus routes and maps</p>
+                    <img src="banasthali_map.jpg" alt="Interactive Banasthali Map" class="interactive-map">
+                </div>
+            </div>
+
+            <div id="complaint-section" class="section hidden-content">
+                <h2>Complaint / Feedback</h2>
+                <div class="complaint-form">
+                    <h4>Report an issue:</h4>
+                    <select id="issue-type">
+                        <option value="">Select Issue Type</option>
+                        <option value="accident">Report an Accident</option>
+                        <option value="delayed">Frequently Delayed Bus</option>
+                        <option value="overcrowding">Overcrowding on Bus Stop</option>
+                        <option value="incorrect_display">Incorrect Bus Displayed</option>
+                        <option value="route_optimisation">Route Optimisation Suggestion</option>
+                        <option value="inappropriate_behavior">Inappropriate Behavior in Bus</option>
+                        <option value="other">Other (please specify)</option>
+                    </select>
+                    <textarea id="complaint-details" placeholder="Provide more details..." rows="5"></textarea>
+                    <button onclick="submitComplaint()">Submit Complaint</button>
+                </div>
+            </div>
+
+            <div id="about-section" class="section hidden-content">
+                <h2>About GAObus</h2>
+                <p>Developed by <strong>The Runtime Rebels, Banasthali Vidyapith</strong></p>
+                <img src="logo.jpg" alt="App Logo" class="about-logo">
+                <p>GAObus is designed to revolutionize urban transit, providing commuters with real-time bus tracking, occupancy levels, and a seamless reporting system. For conductors, it offers an easy way to update bus status, while municipal corporations gain oversight into fleet performance and commuter feedback. Our goal is to make public transportation smart, efficient, and user-friendly.</p>
+                <p>Proudly serving the <strong>Government of Punjab</strong>.</p>
+                <p>Smart India Hackathon</p>
+                <p>Initiative for Digital India</p>
+            </div>
+
+            <!-- Notifications Centre Page -->
+            <div id="notification-centre-section" class="section hidden-content">
+                <h2>Notification Centre</h2>
+                <p class="subtitle">Stay updated with real-time bus information</p>
+                <div class="notification-grid">
+                    <div class="notification-box unread-box">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-count">2 Unread</span>
+                    </div>
+                    <div class="notification-box settings-box" onclick="toggleNotificationSettings()">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </div>
+                </div>
+                <div id="notification-settings" class="settings-panel hidden">
+                    <h4>Notification Settings</h4>
+                    <p class="settings-group-title">Notification Types</p>
+                    <label class="checkbox-container">Bus arrival service
+                        <input type="checkbox" checked>
+                        <span class="checkmark"></span>
+                    </label>
+                    <label class="checkbox-container">Delays
+                        <input type="checkbox" checked>
+                        <span class="checkmark"></span>
+                    </label>
+                    <label class="checkbox-container">Occupancy updates
+                        <input type="checkbox">
+                        <span class="checkmark"></span>
+                    </label>
+                    <label class="checkbox-container">Route changes
+                        <input type="checkbox" checked>
+                        <span class="checkmark"></span>
+                    </label>
+                    <label class="checkbox-container">Maintenance alerts
+                        <input type="checkbox">
+                        <span class="checkmark"></span>
+                    </label>
+
+                    <p class="settings-group-title">Preferences</p>
+                    <label class="checkbox-container">Sound notification
+                        <input type="checkbox" name="pref" checked>
+                        <span class="checkmark"></span>
+                    </label>
+                    <label class="checkbox-container">Vibration
+                        <input type="checkbox" name="pref">
+                        <span class="checkmark"></span>
+                    </label>
+                    <label class="checkbox-container">Mute
+                        <input type="checkbox" name="pref">
+                        <span class="checkmark"></span>
+                    </label>
+                </div>
+                <div id="notification-list" class="notification-list-container"></div>
+            </div>
+
+            <!-- Municipal Admin Dashboard -->
+            <div id="municipal-admin-dashboard-page" class="section hidden-content">
+                <div class="admin-dashboard-header">
+                    <div class="header-text">
+                        <h2 class="admin-title">ADMIN DASHBOARD</h2>
+                        <p class="admin-subtitle">Management and Analytics</p>
+                    </div>
+                    <div class="header-actions">
+                        <select class="time-filter-dropdown">
+                            <option>Today</option>
+                            <option>This Week</option>
+                            <option>This Month</option>
+                        </select>
+                        <i class="fas fa-sync-alt refresh-icon"></i>
+                    </div>
+                </div>
+                <div class="dashboard-grid admin-stats-grid">
+                    <div class="dashboard-card stat-card color-1">
+                        <i class="fas fa-bus-alt"></i>
+                        <h4>Total Fleet</h4>
+                        <p>50</p>
+                    </div>
+                    <div class="dashboard-card stat-card color-2">
+                        <i class="fas fa-map-marked-alt"></i>
+                        <h4>Total Bus Stops</h4>
+                        <p>6</p>
+                    </div>
+                    <div class="dashboard-card stat-card color-3">
+                        <i class="fas fa-users"></i>
+                        <h4>Registered Users</h4>
+                        <p>5,432</p>
+                        <small>+ 1,230 active</small>
+                    </div>
+                    <div class="dashboard-card stat-card color-4">
+                        <i class="fas fa-clock"></i>
+                        <h4>Avg Wait Time</h4>
+                        <p>7 mins</p>
+                    </div>
+                </div>
+
+                <div class="dashboard-grid admin-performance-grid">
+                    <div class="dashboard-card performance-card">
+                        <h4>System Performance</h4>
+                        <ul>
+                            <li>On-time Performance
+                                <div class="progress-bar-container"><div class="progress-bar" style="width: 85%;"></div></div>
+                                <span class="progress-text">85%</span>
+                            </li>
+                            <li>System Reliability
+                                <div class="progress-bar-container"><div class="progress-bar" style="width: 95%;"></div></div>
+                                <span class="progress-text">95%</span>
+                            </li>
+                            <li>Fleet Utilization
+                                <div class="progress-bar-container"><div class="progress-bar" style="width: 70%;"></div></div>
+                                <span class="progress-text">70%</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="dashboard-card status-card">
+                        <h4>Fleet Status Overview</h4>
+                        <ul id="fleet-status-list"></ul>
+                    </div>
+                </div>
+
+                <div class="dashboard-card alerts-card">
+                    <h4>Real-time Alerts</h4>
+                    <div class="alerts-grid">
+                        <div class="alert-box">
+                            <i class="fas fa-route"></i>
+                            <h5>Service Delays</h5>
+                            <p>One bus delayed. Consider dispatching others.</p>
+                        </div>
+                        <div class="alert-box">
+                            <i class="fas fa-users"></i>
+                            <h5>Bus Stop Overcrowded</h5>
+                            <p>One bus stop overcrowded. Consider more buses in that route.</p>
+                        </div>
+                        <div class="alert-box">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <h5>New Complaint</h5>
+                            <p>2 new complaints. <a href="#">View</a></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+
+        <!-- Bottom Taskbar -->
+        <div class="bottom-taskbar">
+            <button class="nav-button active" onclick="showContent('dashboard-section', this)">
+                <i class="fas fa-tachometer-alt"></i> Dashboard
+            </button>
+            <button class="nav-button" onclick="showContent('live-tracker-section', this); updateLastUpdatedTime();">
+                <i class="fas fa-map-marker-alt"></i> Live Tracker
+            </button>
+            <button class="nav-button" onclick="showContent('route-tracker-section', this)">
+                <i class="fas fa-route"></i> Route Tracker
+            </button>
+            <button class="nav-button" onclick="showContent('complaint-section', this)">
+                <i class="fas fa-exclamation-circle"></i> Complaint
+            </button>
+            <button class="nav-button" onclick="showContent('about-section', this)">
+                <i class="fas fa-info-circle"></i> About
+            </button>
+        </div>
+    </div>
+
+    <!-- Custom Notification Modal -->
+    <div id="notification-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <p id="notification-message"></p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
